@@ -1,8 +1,8 @@
 <?php
 
-require __DIR__.'/views/header.php';
+require __DIR__ . '/views/header.php';
 
-require __DIR__.'/views/navigation.php';
+require __DIR__ . '/views/navigation.php';
 
 isLoggenIn();
 
@@ -35,8 +35,10 @@ $user = getUserById((int) $userId, $pdo);
 
         <?php
         $posts = getAllPosts($pdo);
+        $comments = getAllComments($pdo);
         foreach ($posts as $post) {
             $postId = $post['id'];
+
             $postUser = (int) $post['user_id']; ?>
             <div class="feed__post">
                 <div class="post__header bblg w-full">
@@ -46,7 +48,7 @@ $user = getUserById((int) $userId, $pdo);
                         <?php } else { ?>
                             <img src="/app/users/avatar/placeholder2.png">
                         <?php } ?>
-                        <h4><?php echo $post['first_name'].' '.$post['last_name']; ?></h4>
+                        <h4><?php echo $post['first_name'] . ' ' . $post['last_name']; ?></h4>
                     </div>
 
                     <?php
@@ -69,11 +71,11 @@ $user = getUserById((int) $userId, $pdo);
                 <div class="post__image">
                     <img src="/app/posts/uploads/<?php echo $post['post_image'] ?>" alt="Post image">
                 </div>
-               
+
 
                 <?php
                 $likedPost = userHasLiked($pdo, (int) $userId, (int) $postId);
-            $userThatHasLiked = $likedPost['liked_by_user_id']; ?>
+                $userThatHasLiked = $likedPost['liked_by_user_id']; ?>
                 <div class="post__text-content">
                     <div class="post__text-content-header w-full">
                         <div class="flex">
@@ -94,7 +96,7 @@ $user = getUserById((int) $userId, $pdo);
                             <p>
                                 <?php
                                 $postedDate = $post['date'];
-            echo postedAgo($postedDate); ?>
+                                echo postedAgo($postedDate); ?>
                             </p>
                         </div>
                     </div>
@@ -114,74 +116,138 @@ $user = getUserById((int) $userId, $pdo);
                     </div>
 
                     <div class="post__caption w-full">
-                        <h5><?php echo $post['first_name'].' '.$post['last_name']; ?></h5>
+                        <h5><?php echo $post['first_name'] . ' ' . $post['last_name']; ?></h5>
                         <p><?php echo $post['post_caption']; ?></p>
                     </div>
 
                     <div class="post__comments w-full">
-                        
+
                     </div>
 
 
                     <div>
-                    <form action="/app/posts/insert-comment.php" method="post" class="submit-comment-form">
+                        <form action="/app/posts/insert-comment.php" method="post" class="submit-comment-form">
                             <input type="hidden" name="first-name" value="<?php echo $user['first_name']; ?>">
                             <input type="hidden" name="post-id" value="<?php echo $post['id']; ?>">
                             <input type="text" name="comment">
                             <button type="submit"> Comment</button>
-                    </form>
+                        </form>
                     </div>
-                    
-                    
+
+
+
+
+
+
                     <!-- Comment-conatiner -->
-                    
+
                     <div class="comment-container">
-                        
+
                         <div class="comments-posted">
                             <?php $comments = getCommentsById($pdo, (int) $postId); ?>
                             <?php if ($comments) { ?>
                                 <?php foreach ($comments as $comment) { ?>
-
+                                    <?php $commentId = $comment['id']; ?>
                                     <div class="comment-containers">
                                         <div class="username-comment">
                                             <h5 class="username"><?php echo $comment['username']; ?> </h5>
                                             <p class="content"><?php echo $comment['content']; ?></p>
                                         </div>
 
-                                    <div class="username-comment">   
-                                        <?php if ($user['first_name'] == $comment['username']) { ?>
+                                        <div class="username-comment">
+                                            <?php if ($user['first_name'] == $comment['username']) { ?>
 
-                                            <form action="/app/posts/edit-comment.php" method="post">
-                                                <input type="hidden" name="post-id-edit" value="<?php echo $comment['comment_id']; ?>">
-                                                <input class ="edit-input" type="text" name="edit-comment">
-                                                <button type="submit">Edit</button>
-                                            </form>
+                                                <form action="/app/posts/edit-comment.php" method="post">
+                                                    <input type="hidden" name="post-id-edit" value="<?php echo $comment['id']; ?>">
+                                                    <input class="edit-input" type="text" name="edit-comment">
+                                                    <button type="submit">Edit</button>
+                                                </form>
 
-                                            <form action="/app/posts/delete-comment.php" method="post">
-                                                <input type="hidden" name="post-id-delete" value="<?php echo $comment['comment_id']; ?>">
-                                                <button type="submit">Delete</button>
-                                            </form>
+                                                <form action="/app/posts/delete-comment.php" method="post">
+                                                    <input type="hidden" name="post-id-delete" value="<?php echo $comment['id']; ?>">
+                                                    <button type="submit">Delete</button>
+                                                </form>
 
-                                        <?php } ?>
-                                        
+                                            <?php } ?>
+
+                                        </div>
+                                    </div>
+
+
+                                    <div class="like-comment">
+                                        <form action="/app/posts/like.php" method="post">
+
+
+                                            <button class="like-comment" name="like-comment" value="<?php echo $comment['id']; ?>">
+                                                <?php $userHasLikedComment = userHasLikedComment($pdo, $userId, $commentId);
+                                                if (is_array($userHasLikedComment)) {
+                                                    $userThatHasLikedComment = $userHasLikedComment['comment_liked_by_user_id']
+                                                    /* }if ($userThatHasLikedComment) { */ ?>
+                                                    <img src="/views/icons/liked.svg" alt="Comment is liked">
+                                                <?php } else { ?>
+                                                    <img src="/views/icons/heart.svg" alt="Comment is not liked">
+                                                <?php } ?>
+
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="date">
+                                        <p>
+                                            <?php
+                                            $postedDate = $post['date'];
+                                            echo postedAgo($postedDate); ?>
+                                        </p>
+                                    </div>
+
+
+
+                                <?php } ?>
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <!-- REPLIES -->
+                    <div>
+                        <form action="/app/posts/insert-reply.php" method="post" class="replies-comment-form">
+                            <input type="hidden" name="first-name" value="<?php echo $user['first_name']; ?>">
+                            <input type="hidden" name="comment-id" value="<?php echo $comment['id']; ?>">
+                            <input type="text" name="reply">
+                            <button type="submit" class="reply-button">Reply</button>
+                        </form>
+                    </div>
+
+
+                    <div class="comments-posted">
+                        <?php $replies = getRepliesById($pdo, (int) $commentId); ?>
+                        <?php if ($replies) { ?>
+                            <?php foreach ($replies as $reply) { ?>
+
+                                <div class="comment-containers">
+                                    <div class="username-comment">
+                                        <h5 class="username"><?php echo $reply['username']; ?> replied: </h5>
+                                        <p class="content"><?php echo $reply['content']; ?></p>
+
+
+
                                     </div>
                                 </div>
 
-                            <?php } ?>
-                        <?php } ?>
-
-                        </div>
-
-
-                     </div>
-
-                    
-                    <p id="output"></p>
+                    </div>
                 </div>
+
+
+
+
+                <p id="output"></p>
             </div>
-        <?php
-        } ?>
+            </div>
+<?php
+                            }
+                        }
+                    }
+
+?>
     </section>
 </main>
 
-<?php require __DIR__.'/views/footer.php'; ?>
+<?php require __DIR__ . '/views/footer.php'; ?>

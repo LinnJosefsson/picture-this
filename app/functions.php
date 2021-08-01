@@ -137,6 +137,23 @@ function getAllPosts($pdo)
     return $posts;
 }
 
+/* REPLIES!! */
+
+function getAllComments($pdo)
+{
+
+    $statement = $pdo->prepare('SELECT comments.id, comments.post_id, users.first_name, users.last_name, users.avatar FROM comments JOIN users ON comments.username = users.first_name ORDER BY comments.date_posted DESC');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute();
+
+    $comments = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    return $comments;
+}
+
+
 /**
  * Returns post by id.
  *
@@ -219,13 +236,13 @@ if (!function_exists('postedAgo')) {
         $now = date('Y-m-d H:i:s');
         $uploaded = strtotime($now) - strtotime($datePostWasUploaded);
         if ($uploaded >= 172800) {
-            $diff = floor($uploaded / 172800).' days ago';
+            $diff = floor($uploaded / 172800) . ' days ago';
         } elseif ($uploaded >= 86400) {
-            $diff = floor($uploaded / 86400).' day ago';
+            $diff = floor($uploaded / 86400) . ' day ago';
         } elseif ($uploaded >= 3600) {
-            $diff = floor($uploaded / 3600).' hours ago';
+            $diff = floor($uploaded / 3600) . ' hours ago';
         } elseif ($uploaded >= 60) {
-            $diff = floor($uploaded / 60).' minutes ago';
+            $diff = floor($uploaded / 60) . ' minutes ago';
         } else {
             $diff = 'a few seconds ago';
         }
@@ -259,6 +276,22 @@ function userHasLiked(PDO $pdo, int $userId, int $postId)
     $isLiked = $statement->fetch(PDO::FETCH_ASSOC);
 
     return $isLiked;
+}
+
+function userHasLikedComment(PDO $pdo, int $userId, int $commentId)
+{
+    $statement = $pdo->prepare('SELECT * FROM comments_likes WHERE comment_id = :comment_id AND comment_liked_by_user_id = :user_id');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute([
+        ':user_id' => $userId,
+        ':comment_id' => $commentId,
+    ]);
+
+    $commentIsLiked = $statement->fetch(PDO::FETCH_ASSOC);
+
+    return $commentIsLiked;
 }
 
 /**
@@ -382,4 +415,20 @@ function getCommentsById(PDO $pdo, int $postId)
     $comments = $statement->fetchAll(PDO::FETCH_ASSOC);
 
     return $comments;
+}
+
+
+function getRepliesById(PDO $pdo, int $commentId)
+{
+    $statement = $pdo->prepare('SELECT * FROM replies WHERE replies.comment_id = :id ORDER BY date_posted DESC');
+
+    sqlQueryError($pdo, $statement);
+
+    $statement->execute([
+        'id' => $commentId,
+    ]);
+
+    $replies = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    return $replies;
 }

@@ -1,0 +1,20 @@
+.reply-button {
+    border: none;
+    width: 80px;
+    height: 50px;
+    border-radius: 19%;
+    background-color: #96b5c8;
+}
+
+.replies-container form {
+    display: flex;
+    justify-content: space-between;
+}
+
+.replies-comment-form input:nth-child(3) {
+    border-radius: 15px;
+    width: 60%;
+    height: 50px;
+    background-color: #999998;
+    border: none;
+}

@@ -4,7 +4,7 @@
 
 declare(strict_types=1);
 
-require __DIR__.'/../autoload.php';
+require __DIR__ . '/../autoload.php';
 
 // In this file we add or remove likes on posts in the database
 
@@ -34,6 +34,39 @@ if (isset($_POST['like-post'])) {
             ':post_id'          => $postId,
             ':liked_by_user_id' => $userId,
         ]);
+    }
+
+    redirect('/');
+}
+
+
+if (isset($_POST['like-comment'])) {
+    $commentId = (int) $_POST['like-comment'];
+    $userId = (int) $_SESSION['user']['id'];
+
+    if (userHasLikedComment($pdo, $userId, $commentId)) {
+        $removeCommentLike = $pdo->prepare('DELETE FROM comments_likes WHERE comment_id = :comment_id AND comment_liked_by_user_id = :comment_liked_by_user_id');
+
+        if (!$removeCommentLike) {
+            die(var_dump($pdo->errorInfo()));
+        }
+
+        $removeCommentLike->execute([
+            ':comment_id'          => $commentId,
+            ':comment_liked_by_user_id' => $userId,
+        ]);
+    } else {
+        $like = $pdo->prepare('INSERT INTO comments_likes (comment_id, comment_liked_by_user_id) VALUES (:comment_id, :comment_liked_by_user_id)');
+
+        if (!$like) {
+            die(var_dump($pdo->errorInfo()));
+        }
+
+        $like->execute([
+            ':comment_id'          => $commentId,
+            ':comment_liked_by_user_id' => $userId,
+        ]);
+        var_dump($userId);
     }
 
     redirect('/');

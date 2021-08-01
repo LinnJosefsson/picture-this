@@ -3,7 +3,7 @@
 
 declare(strict_types=1);
 
-require __DIR__.'/../app/autoload.php';
+require __DIR__ . '/../app/autoload.php';
 
 ?>
 
@@ -27,6 +27,8 @@ require __DIR__.'/../app/autoload.php';
     <link rel="stylesheet" href="/assets/styles/create-post.css">
     <link rel="stylesheet" href="/assets/styles/view-post.css">
     <link rel="stylesheet" href="/assets/styles/footer.css">
+    <link rel="stylesheet" href="/assets/styles/replies.css">
+    <link rel="stylesheet" href="/assets/styles/like-comment.css">
     <style>
         @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro|Ubuntu|Poppins&display=swap');
     </style>
